@@ -1,6 +1,5 @@
-require('dotenv').config(); // Load environment variables at the top
+require('dotenv').config();
 
-// Debug environment variables
 console.log('Environment Variables:');
 console.log(`DB_SERVER: ${process.env.DB_SERVER}`);
 console.log(`DB_DATABASE: ${process.env.DB_DATABASE}`);
@@ -9,7 +8,7 @@ console.log(`DB_PASSWORD: ${process.env.DB_PASSWORD}`);
 console.log(`DB_AUTHENTICATION: ${process.env.DB_AUTHENTICATION}`);
 console.log(`DB_DOMAIN: ${process.env.DB_DOMAIN}`);
 
-// Database configuration
+// The Database SQL configuration
 const dbConfig = {
     server: process.env.DB_SERVER || 'WILL',
     database: process.env.DB_DATABASE || 'HomeGuardHub',
@@ -21,13 +20,12 @@ const dbConfig = {
         type: process.env.DB_AUTHENTICATION === 'SQL' ? 'default' : 'ntlm',
         options: {
             userName: process.env.DB_USERNAME || 'willbelding',
-            password: process.env.DB_PASSWORD || '', // This should not be empty
-            domain: process.env.DB_DOMAIN || '', // Domain should be blank for SQL auth
+            password: process.env.DB_PASSWORD || '', 
+            domain: process.env.DB_DOMAIN || '',
         },
     },
 };
 
-// Print the final configuration object
 console.log('Database Configuration:', dbConfig);
 
 const connectToDatabase = async () => {

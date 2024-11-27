@@ -1,20 +1,23 @@
 const express = require('express');
 const deviceRoutes = require('./routes/deviceRoutes');
+const { connectToDatabase } = require('./database/dbConfig');
 require('dotenv').config();
 
 const app = express();
+
 app.use(express.json());
 
-// Define a root route
+(async () => {
+    await connectToDatabase();
+})();
+
 app.get('/', (req, res) => {
-    res.send('Welcome to the Home Guard Security'); // A simple response for the root path
+    res.send('Welcome to the Home Guard Security');
 });
 
-// Define routes
 app.use('/api', deviceRoutes);
 
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

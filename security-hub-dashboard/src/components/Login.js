@@ -12,7 +12,7 @@ const Login = ({ setIsAuthenticated }) => {
     try {
       const res = await api.post('/auth/signin', { email, password });
       localStorage.setItem('token', res.data.accessToken);
-      setIsAuthenticated(true);  // Notify App.js that the user is now logged in
+      setIsAuthenticated(true);
       navigate('/dashboard');
     } catch (err) {
       console.error('Login error:', err.response?.data || err.message);

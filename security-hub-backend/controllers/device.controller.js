@@ -41,12 +41,10 @@ exports.updateDeviceStatus = async (req, res) => {
   }
 };
 
-// ADD THIS → Scan device endpoint
 exports.scanDevice = async (req, res) => {
   try {
     const deviceId = req.params.id;
 
-    // Check if device exists for this user
     const device = await Device.findOne({
       where: { id: deviceId, userId: req.userId }
     });
@@ -55,7 +53,6 @@ exports.scanDevice = async (req, res) => {
       return res.status(404).send({ message: "Device not found" });
     }
 
-    // Simulate a scan process (basic version)
     device.status = "Scanned - Healthy";
     device.lastScanned = new Date();
 

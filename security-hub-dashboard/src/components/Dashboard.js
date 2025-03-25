@@ -4,7 +4,6 @@ import api from '../api';
 import DeviceCard from './DeviceCard';
 import AddDevice from './AddDevice';
 
-// Material UI imports
 import {
   Box,
   AppBar,

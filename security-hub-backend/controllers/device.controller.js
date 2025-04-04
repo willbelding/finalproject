@@ -3,13 +3,22 @@ const Device = db.device;
 
 exports.registerDevice = async (req, res) => {
   try {
+    console.log('Token userId:', req.userId);
+    if (!req.userId) {
+      return res.status(401).send({ message: 'Invalid or missing user token.' });
+    }
+
     const device = await Device.create({
+      id: req.body.deviceId,
       deviceName: req.body.deviceName,
       deviceType: req.body.deviceType,
       userId: req.userId
     });
+
+    console.log('Device created:', device.deviceName);
     res.status(200).send(device);
   } catch (err) {
+    console.error('Error in registerDevice:', err);
     res.status(500).send({ message: err.message });
   }
 };
@@ -44,7 +53,6 @@ exports.updateDeviceStatus = async (req, res) => {
 exports.scanDevice = async (req, res) => {
   try {
     const deviceId = req.params.id;
-
     const device = await Device.findOne({
       where: { id: deviceId, userId: req.userId }
     });
@@ -53,14 +61,55 @@ exports.scanDevice = async (req, res) => {
       return res.status(404).send({ message: "Device not found" });
     }
 
-    device.status = "Scanned - Healthy";
-    device.lastScanned = new Date();
+    const { scanData } = req.body;
+    const hasRisk = scanData?.suspiciousApps?.length > 0 || scanData?.emulator === true;
+    const newStatus = hasRisk ? "Scanned - Issues Found" : "Scanned - Healthy";
 
-    await device.save();
+    await device.update({
+      status: newStatus,
+      lastScanned: new Date(),
+      scanReport: JSON.stringify(scanData)
+    });
 
     res.status(200).send({
-      message: "Scan complete",
-      status: device.status
+      message: "Scan data stored successfully",
+      status: newStatus,
+      scanReport: scanData
+    });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+};
+
+exports.submitScanFromMobile = async (req, res) => {
+  try {
+    const { deviceId, ...scanData } = req.body;
+
+    if (!deviceId) {
+      return res.status(400).send({ message: "Missing deviceId in scan data" });
+    }
+
+    const device = await Device.findOne({
+      where: { id: req.body.deviceId, userId: req.userId }
+    });
+
+    if (!device) {
+      return res.status(404).send({ message: "Device not found for this user" });
+    }
+
+    const hasRisk = scanData.suspiciousApps?.length > 0 || scanData.emulator === true;
+    const newStatus = hasRisk ? "Scanned - Issues Found" : "Scanned - Healthy";
+
+    await device.update({
+      status: newStatus,
+      lastScanned: new Date(),
+      scanReport: JSON.stringify(scanData)
+    });
+
+    res.status(200).send({
+      message: "Scan submitted successfully from mobile device",
+      status: newStatus,
+      scanReport: scanData
     });
   } catch (err) {
     res.status(500).send({ message: err.message });

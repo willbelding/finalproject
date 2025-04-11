@@ -5,8 +5,8 @@ import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
 import DevicesScreen from './src/screens/DevicesScreen';
 import ScanScreen from './src/screens/ScanScreen';
-import MalwareDetectedScreen from './src/screens/MalwareDetectedScreen'; // New screen
-import CleanScreen from './src/screens/CleanScreen'; // New screen
+import MalwareDetectedScreen from './src/screens/MalwareDetectedScreen';
+import CleanScreen from './src/screens/CleanScreen';
 
 const Stack = createNativeStackNavigator();
 

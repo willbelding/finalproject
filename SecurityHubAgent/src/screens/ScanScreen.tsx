@@ -19,7 +19,6 @@ export default function ScanScreen({ navigation }: { navigation: any }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Reset state when returning to this screen
   useFocusEffect(
     useCallback(() => {
       setResult(null);
@@ -71,7 +70,7 @@ export default function ScanScreen({ navigation }: { navigation: any }) {
     setupNotificationChannel();
     const interval = setInterval(() => {
       runScan(false);
-    }, 1000 * 60 * 60 * 6); // Every 6 hours
+    }, 1000 * 60 * 60 * 6);
     return () => clearInterval(interval);
   }, []);
 

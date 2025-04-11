@@ -18,7 +18,6 @@ db.sequelize.sync({ alter: true })
 
 require("./routes/auth.routes")(app);
 require("./routes/device.routes")(app);
-// require("./routes/malware.routes")(app);
 app.use("/api", require("./routes/malware.routes"));
 
 const PORT = process.env.PORT || 5000;

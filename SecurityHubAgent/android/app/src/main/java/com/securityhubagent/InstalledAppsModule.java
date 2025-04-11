@@ -34,16 +34,14 @@ public class InstalledAppsModule extends ReactContextBaseJavaModule {
             PackageManager pm = reactContext.getPackageManager();
             List<PackageInfo> packages = pm.getInstalledPackages(PackageManager.GET_PERMISSIONS);
 
-            String ownPackage = reactContext.getPackageName(); // to exclude self
+            String ownPackage = reactContext.getPackageName();
             WritableArray result = Arguments.createArray();
 
             for (PackageInfo pkg : packages) {
                 ApplicationInfo appInfo = pkg.applicationInfo;
 
-                // Skip disabled apps
                 if (!appInfo.enabled) continue;
 
-                // Skip self
                 if (pkg.packageName.equals(ownPackage)) continue;
 
                 WritableMap map = Arguments.createMap();
@@ -51,7 +49,6 @@ public class InstalledAppsModule extends ReactContextBaseJavaModule {
                 map.putString("name", pm.getApplicationLabel(appInfo).toString());
                 map.putBoolean("isSystemApp", (appInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0);
 
-                // Permissions
                 WritableArray permissionsArray = Arguments.createArray();
                 if (pkg.requestedPermissions != null) {
                     for (String permission : pkg.requestedPermissions) {
@@ -60,7 +57,6 @@ public class InstalledAppsModule extends ReactContextBaseJavaModule {
                 }
                 map.putArray("permissions", permissionsArray);
 
-                // Debug log each app
                 Log.d("InstalledApps", "Detected: " + pkg.packageName + " (" + appInfo.loadLabel(pm) + ")");
 
                 result.pushMap(map);

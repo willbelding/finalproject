@@ -1,6 +1,5 @@
 package com.securityhubagent
 
-import com.securityhubagent.InstalledAppsPackage
 import android.app.Application
 import com.facebook.react.PackageList
 import com.facebook.react.ReactApplication
@@ -14,11 +13,13 @@ import com.facebook.react.soloader.OpenSourceMergedSoMapping
 import com.facebook.soloader.SoLoader
 
 class MainApplication : Application(), ReactApplication {
+
   override val reactNativeHost: ReactNativeHost =
     object : DefaultReactNativeHost(this) {
       override fun getPackages(): List<ReactPackage> =
         PackageList(this).packages.apply {
-          add(InstalledAppsPackage()) // <-- Register your custom native module
+          add(InstalledAppsPackage())
+          add(DeleteAppsPackage())
         }
 
       override fun getJSMainModuleName(): String = "index"

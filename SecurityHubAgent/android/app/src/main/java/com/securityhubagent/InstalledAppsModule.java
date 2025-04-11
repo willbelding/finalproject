@@ -3,6 +3,8 @@ package com.securityhubagent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.util.Log;
+
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -31,10 +33,18 @@ public class InstalledAppsModule extends ReactContextBaseJavaModule {
         try {
             PackageManager pm = reactContext.getPackageManager();
             List<PackageInfo> packages = pm.getInstalledPackages(PackageManager.GET_PERMISSIONS);
+
+            String ownPackage = reactContext.getPackageName(); // to exclude self
             WritableArray result = Arguments.createArray();
 
             for (PackageInfo pkg : packages) {
                 ApplicationInfo appInfo = pkg.applicationInfo;
+
+                // Skip disabled apps
+                if (!appInfo.enabled) continue;
+
+                // Skip self
+                if (pkg.packageName.equals(ownPackage)) continue;
 
                 WritableMap map = Arguments.createMap();
                 map.putString("packageName", pkg.packageName);
@@ -50,13 +60,16 @@ public class InstalledAppsModule extends ReactContextBaseJavaModule {
                 }
                 map.putArray("permissions", permissionsArray);
 
+                // Debug log each app
+                Log.d("InstalledApps", "Detected: " + pkg.packageName + " (" + appInfo.loadLabel(pm) + ")");
+
                 result.pushMap(map);
             }
 
             promise.resolve(result);
         } catch (Exception e) {
+            Log.e("InstalledApps", "Failed to list apps", e);
             promise.reject("ERR_APPS", "Failed to get installed apps", e);
         }
     }
 }
-

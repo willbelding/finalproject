@@ -4,8 +4,18 @@ const Device = db.device;
 exports.registerDevice = async (req, res) => {
   try {
     console.log('Token userId:', req.userId);
+
     if (!req.userId) {
       return res.status(401).send({ message: 'Invalid or missing user token.' });
+    }
+
+    const existing = await Device.findOne({
+      where: { id: req.body.deviceId, userId: req.userId }
+    });
+
+    if (existing) {
+      console.log('Device already registered:', existing.deviceName);
+      return res.status(200).send(existing);
     }
 
     const device = await Device.create({
@@ -16,7 +26,7 @@ exports.registerDevice = async (req, res) => {
     });
 
     console.log('Device created:', device.deviceName);
-    res.status(200).send(device);
+    res.status(201).send(device);
   } catch (err) {
     console.error('Error in registerDevice:', err);
     res.status(500).send({ message: err.message });
@@ -56,7 +66,6 @@ exports.scanDevice = async (req, res) => {
     const device = await Device.findOne({
       where: { id: deviceId, userId: req.userId }
     });
-
     if (!device) {
       return res.status(404).send({ message: "Device not found" });
     }
@@ -83,16 +92,19 @@ exports.scanDevice = async (req, res) => {
 
 exports.submitScanFromMobile = async (req, res) => {
   try {
+    console.log('[MOBILE SCAN RECEIVED]');
+    console.log('Device ID:', req.body.deviceId);
+    console.log('Malware:', req.body.malware);
+    console.log('Installed Suspicious:', req.body.suspiciousApps);
+    
     const { deviceId, ...scanData } = req.body;
-
     if (!deviceId) {
       return res.status(400).send({ message: "Missing deviceId in scan data" });
     }
 
     const device = await Device.findOne({
-      where: { id: req.body.deviceId, userId: req.userId }
+      where: { id: deviceId, userId: req.userId }
     });
-
     if (!device) {
       return res.status(404).send({ message: "Device not found for this user" });
     }
@@ -113,5 +125,21 @@ exports.submitScanFromMobile = async (req, res) => {
     });
   } catch (err) {
     res.status(500).send({ message: err.message });
+  }
+  
+};
+
+exports.deleteDevice = async (req, res) => {
+  try {
+    const device = await Device.findOne({
+      where: { id: req.params.id, userId: req.userId }
+    });
+    if (!device) {
+      return res.status(404).send({ message: 'Device not found' });
+    }
+    await device.destroy();
+    res.send({ message: 'Device deleted' });
+  } catch (err) {
+    res.status(500).send({ message: 'Server error' });
   }
 };

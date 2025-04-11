@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import DeviceCard from './DeviceCard';
-import AddDevice from './AddDevice';
-
 import {
   Box,
   AppBar,
@@ -12,16 +10,19 @@ import {
   Button,
   Container,
   Grid,
-  Paper
 } from '@mui/material';
+import { ThemeModeContext } from '../context/ThemeContext';
 
 const Dashboard = ({ setIsAuthenticated }) => {
   const [devices, setDevices] = useState([]);
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
+  const { toggleTheme, mode } = useContext(ThemeModeContext);
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('loginTime');
+    localStorage.removeItem('tokenExpiry');
     setIsAuthenticated(false);
     navigate('/');
   };
@@ -49,38 +50,30 @@ const Dashboard = ({ setIsAuthenticated }) => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       {/* Top Navigation */}
-      <AppBar position="static">
+      <AppBar position="static" sx={{ bgcolor: mode === 'dark' ? '#000' : undefined }}>
         <Toolbar>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" sx={{ flexGrow: 1, color: '#fff' }}>
             Security Hub Dashboard
           </Typography>
+          <Button color="inherit" onClick={toggleTheme}>
+            {mode === 'dark' ? 'Light Mode' : 'Dark Mode'}
+          </Button>
           <Button color="inherit" onClick={logout}>Logout</Button>
         </Toolbar>
       </AppBar>
 
       {/* Main content */}
       <Container sx={{ py: 4 }}>
-        <Grid container spacing={4}>
-          <Grid item xs={12} md={4}>
-            <Paper elevation={3} sx={{ p: 3 }}>
-              <Typography variant="h6" gutterBottom>
-                Add New Device
-              </Typography>
-              <AddDevice onDeviceAdded={fetchDevices} />
-            </Paper>
-          </Grid>
-
-          <Grid item xs={12} md={8}>
-            <Typography variant="h5" gutterBottom>
-              Registered Devices
-            </Typography>
-            <Grid container spacing={2}>
-              {devices.map(device => (
-                <Grid item xs={12} sm={6} key={device.id}>
-                  <DeviceCard device={device} refresh={fetchDevices} />
-                </Grid>
-              ))}
-            </Grid>
+        <Grid item xs={12} md={8}>
+          <Typography variant="h5" gutterBottom>
+            Registered Devices
+          </Typography>
+          <Grid container spacing={2}>
+            {devices.map(device => (
+              <Grid item xs={12} sm={6} key={device.id}>
+                <DeviceCard device={device} refresh={fetchDevices} />
+              </Grid>
+            ))}
           </Grid>
         </Grid>
       </Container>

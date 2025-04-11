@@ -19,6 +19,7 @@ db.sequelize = sequelize;
 
 db.user = require("./user.model.js")(sequelize, Sequelize);
 db.device = require("./device.model.js")(sequelize, Sequelize);
+db.malware = require("./malware.model.js")(sequelize,Sequelize);
 
 db.user.hasMany(db.device, { as: "devices" });
 db.device.belongsTo(db.user, {

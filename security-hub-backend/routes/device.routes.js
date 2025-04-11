@@ -7,4 +7,5 @@ module.exports = function (app) {
   app.put("/api/device/update/:id", authJwt.verifyToken, controller.updateDeviceStatus);
   app.post("/api/device/scan/:id", authJwt.verifyToken, controller.scanDevice);
   app.post("/api/device/scan", authJwt.verifyToken, controller.submitScanFromMobile);
+  app.delete("/api/device/delete/:id", authJwt.verifyToken, controller.deleteDevice);
 };

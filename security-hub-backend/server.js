@@ -12,10 +12,14 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 const db = require("./models");
-db.sequelize.sync();
+db.sequelize.sync({ alter: true })
+  .then(() => console.log('Database synced with model changes'))
+  .catch((err) => console.error('Database sync failed:', err));
 
 require("./routes/auth.routes")(app);
 require("./routes/device.routes")(app);
+// require("./routes/malware.routes")(app);
+app.use("/api", require("./routes/malware.routes"));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

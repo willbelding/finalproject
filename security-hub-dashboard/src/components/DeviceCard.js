@@ -1,90 +1,93 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Card,
   CardContent,
   CardActions,
   Typography,
   Button,
-  List,
-  ListItem,
-  ListItemText
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  useTheme
 } from '@mui/material';
 
 const DeviceCard = ({ device, refresh }) => {
   const token = localStorage.getItem('token');
+  const theme = useTheme();
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const updateStatus = async (newStatus) => {
+  const deleteDevice = async () => {
     try {
-      await fetch(`http://localhost:5000/api/device/update/${device.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-access-token': token
-        },
-        body: JSON.stringify({ status: newStatus })
+      await fetch(`http://localhost:5000/api/device/delete/${device.id}`, {
+        method: 'DELETE',
+        headers: { 'x-access-token': token }
       });
+      setConfirmOpen(false);
       refresh();
     } catch (err) {
-      alert('Failed to update device status.');
+      alert('Failed to delete device.');
     }
   };
 
+  const scanData = device.scanReport ? JSON.parse(device.scanReport) : null;
+  const malwareApps = scanData?.malware || [];
+
   const statusColor = {
-    Healthy: 'success.main',
-    Warning: 'warning.main',
-    Critical: 'error.main',
-    'Scanned - Healthy': 'success.light',
-    'Scanned - Issues Found': 'error.light'
+    'Scanned - Healthy': theme.palette.success.dark,
+    'Scanned - Issues Found': theme.palette.error.dark,
+    Healthy: theme.palette.success.main,
+    Warning: theme.palette.warning.main,
+    Critical: theme.palette.error.main
   };
 
-  const scanData = device.scanReport ? JSON.parse(device.scanReport) : null;
+  const cardStyle = {
+    backgroundColor: statusColor[device.status] || theme.palette.grey[800],
+    color: theme.palette.getContrastText(statusColor[device.status] || theme.palette.grey[800]),
+    marginBottom: theme.spacing(2)
+  };
 
   return (
-    <Card sx={{ backgroundColor: statusColor[device.status] || 'grey.100', mb: 2 }}>
-      <CardContent>
-        <Typography variant="h6">{device.deviceName}</Typography>
-        <Typography variant="subtitle1">Type: {device.deviceType}</Typography>
-        <Typography variant="subtitle2">Status: {device.status}</Typography>
-        <Typography variant="body2">
-          Last Scanned: {device.lastScanned ? new Date(device.lastScanned).toLocaleString() : 'Never'}
-        </Typography>
+    <>
+      <Card sx={cardStyle}>
+        <CardContent>
+          <Typography variant="h6">{device.deviceName}</Typography>
+          <Typography variant="subtitle1">Type: {device.deviceType}</Typography>
+          <Typography variant="subtitle2">Status: {device.status}</Typography>
+          <Typography variant="body2">
+            Last Scanned: {device.lastScanned ? new Date(device.lastScanned).toLocaleString() : 'Never'}
+          </Typography>
 
-        {scanData && (
-          <>
-            <Typography variant="subtitle1" sx={{ mt: 1 }}>Scan Report</Typography>
-            <List dense>
-              <ListItem>
-                <ListItemText primary="Emulator" secondary={scanData.emulator ? "Yes" : "No"} />
-              </ListItem>
-              <ListItem>
-                <ListItemText primary="Tablet" secondary={scanData.tablet ? "Yes" : "No"} />
-              </ListItem>
-              <ListItem>
-                <ListItemText primary="WiFi Connected" secondary={scanData.wifi ? "Yes" : "No"} />
-              </ListItem>
-              <ListItem>
-                <ListItemText primary="Internet Reachable" secondary={scanData.connectionSecure ? "Yes" : "No"} />
-              </ListItem>
-              <ListItem>
-                <ListItemText
-                  primary="Suspicious Apps"
-                  secondary={
-                    scanData.suspiciousApps?.length > 0
-                      ? scanData.suspiciousApps.join(', ')
-                      : 'None detected'
-                  }
-                />
-              </ListItem>
-            </List>
-          </>
-        )}
-      </CardContent>
-      <CardActions>
-        <Button size="small" onClick={() => updateStatus('Healthy')}>Mark Healthy</Button>
-        <Button size="small" onClick={() => updateStatus('Warning')}>Mark Warning</Button>
-        <Button size="small" onClick={() => updateStatus('Critical')}>Mark Critical</Button>
-      </CardActions>
-    </Card>
+          <Typography variant="subtitle1" sx={{ mt: 2 }}>Scan Report:</Typography>
+          {malwareApps.length > 0 ? (
+            <ul>
+              {malwareApps.map((app, idx) => (
+                <li key={idx}>{app}</li>
+              ))}
+            </ul>
+          ) : (
+            <Typography>No malware found in last scan.</Typography>
+          )}
+        </CardContent>
+
+        <CardActions>
+          <Button
+            size="small"
+            color="error"
+            onClick={() => setConfirmOpen(true)}
+          >
+            Delete Device
+          </Button>
+        </CardActions>
+      </Card>
+
+      <Dialog open={confirmOpen} onClose={() => setConfirmOpen(false)}>
+        <DialogTitle>Are you sure you want to delete this device?</DialogTitle>
+        <DialogActions>
+          <Button onClick={() => setConfirmOpen(false)}>Cancel</Button>
+          <Button onClick={deleteDevice} color="error">Delete</Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 };
 

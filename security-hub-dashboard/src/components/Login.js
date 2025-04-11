@@ -12,13 +12,15 @@ const Login = ({ setIsAuthenticated }) => {
     try {
       const res = await api.post('/auth/signin', { email, password });
       localStorage.setItem('token', res.data.accessToken);
+      const now = new Date().getTime();
+      localStorage.setItem('loginTime', now.toString());
+      localStorage.setItem('tokenExpiry', (now + 5 * 60 * 1000).toString());
       setIsAuthenticated(true);
       navigate('/dashboard');
     } catch (err) {
       console.error('Login error:', err.response?.data || err.message);
       alert('Login failed! Please check your email and password.');
     }
-
     setEmail('');
     setPassword('');
   };

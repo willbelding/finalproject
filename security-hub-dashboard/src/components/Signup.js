@@ -2,6 +2,47 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
+const styles = {
+  container: {
+    maxWidth: 400,
+    margin: '80px auto',
+    padding: 20,
+    borderRadius: 8,
+    backgroundColor: '#f9f9f9',
+    boxShadow: '0 4px 10px rgba(0,0,0,0.1)',
+    textAlign: 'center'
+  },
+  input: {
+    width: '100%',
+    padding: '12px',
+    margin: '12px 0',
+    borderRadius: 6,
+    border: '1px solid #ccc',
+    fontSize: 16
+  },
+  button: {
+    width: '100%',
+    padding: '12px',
+    backgroundColor: '#007AFF',
+    color: '#fff',
+    border: 'none',
+    borderRadius: 6,
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    fontSize: 16
+  },
+  title: {
+    fontSize: 24,
+    marginBottom: 20,
+    fontWeight: 'bold'
+  },
+  secondary: {
+    marginTop: 10,
+    backgroundColor: '#eee',
+    color: '#333'
+  }
+};
+
 const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,14 +60,30 @@ const Signup = () => {
   };
 
   return (
-    <div>
-      <h2>Signup</h2>
+    <div style={styles.container}>
+      <h2 style={styles.title}>Signup</h2>
       <form onSubmit={handleSignup}>
-        <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required /><br />
-        <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required /><br />
-        <button type="submit">Signup</button>
+        <input
+          style={styles.input}
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          required
+        />
+        <input
+          style={styles.input}
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          required
+        />
+        <button style={styles.button} type="submit">Signup</button>
       </form>
-      <button onClick={() => navigate('/')}>Back to Login</button>
+      <button style={{ ...styles.button, ...styles.secondary }} onClick={() => navigate('/')}>
+        Back to Login
+      </button>
     </div>
   );
 };

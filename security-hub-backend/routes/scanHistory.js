@@ -1,7 +1,9 @@
-import express from 'express';
-import ScanHistory from '../models/ScanHistory';
-
+const express = require('express');
 const router = express.Router();
+const db = require('../models');
+const ScanHistory = db.scanHistory;
+
+console.log('ScanHistory value:', ScanHistory);
 
 router.post('/scan-history', async (req, res) => {
   try {
@@ -21,8 +23,21 @@ router.get('/scan-history/:deviceId', async (req, res) => {
     });
     res.json(history);
   } catch (err) {
+    console.error('Error fetching scan history:', err);
     res.status(500).json({ error: 'Failed to fetch scan history' });
   }
 });
 
-export default router;
+router.delete('/scan-history/:deviceId', async (req, res) => {
+  try {
+    const count = await ScanHistory.destroy({
+      where: { deviceId: req.params.deviceId }
+    });
+    res.status(200).json({ message: `Deleted ${count} scan records.` });
+  } catch (err) {
+    console.error('Error deleting scan history:', err);
+    res.status(500).json({ error: 'Failed to delete scan history' });
+  }
+});
+
+module.exports = router;

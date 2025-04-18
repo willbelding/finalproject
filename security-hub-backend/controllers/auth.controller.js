@@ -45,3 +45,45 @@ exports.signin = async (req, res) => {
     res.status(500).send({ message: err.message });
   }
 };
+
+exports.getProfile = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.userId);
+    if (!user) return res.status(404).send({ message: "User not found" });
+    res.send({ email: user.email });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+};
+
+exports.updateEmail = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.userId);
+    if (!user) return res.status(404).send({ message: "User not found" });
+
+    const isPasswordValid = bcrypt.compareSync(req.body.currentPassword, user.password);
+    if (!isPasswordValid) return res.status(401).send({ message: "Incorrect password" });
+
+    user.email = req.body.newEmail;
+    await user.save();
+    res.send({ message: "Email updated" });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+};
+
+exports.updatePassword = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.userId);
+    if (!user) return res.status(404).send({ message: "User not found" });
+
+    const isPasswordValid = bcrypt.compareSync(req.body.currentPassword, user.password);
+    if (!isPasswordValid) return res.status(401).send({ message: "Incorrect current password" });
+
+    user.password = bcrypt.hashSync(req.body.newPassword, 8);
+    await user.save();
+    res.send({ message: "Password updated" });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+};

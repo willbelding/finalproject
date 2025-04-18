@@ -20,6 +20,9 @@ db.sequelize = sequelize;
 db.user = require("./user.model.js")(sequelize, Sequelize);
 db.device = require("./device.model.js")(sequelize, Sequelize);
 db.malware = require("./malware.model.js")(sequelize,Sequelize);
+db.scanHistory = require("./ScanHistory.js")(sequelize, Sequelize);
+
+console.log('db.scanHistory loaded:', typeof db.scanHistory?.create);
 
 db.user.hasMany(db.device, { as: "devices" });
 db.device.belongsTo(db.user, {
